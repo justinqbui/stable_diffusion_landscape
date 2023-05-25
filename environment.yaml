@@ -10,6 +10,7 @@ dependencies:
   - numpy=
   - pip:
     - albumentations
+    - kornia
     - opencv-python
     - pudb
     - imageio

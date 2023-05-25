@@ -43,7 +43,7 @@ model:
       params:
         embed_dim: 4
         n_embed: 16384
-        ckpt_path: configs/first_stage_models/vq-f8/model.yaml
+        ckpt_path: "/Users/justinqbui/Desktop/research/stable_diffusion_m1/models/first_stage_models/vq-f8/model.ckpt"
         ddconfig:
           double_z: false
           z_channels: 4
@@ -70,16 +70,16 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 64
+    batch_size: 1
     num_workers: 12
     wrap: false
     train:
-      target: ldm.data.imagenet.ImageNetTrain
+      target: ldm.data.landscape.LandscapeTrain
       params:
         config:
           size: 256
     validation:
-      target: ldm.data.imagenet.ImageNetValidation
+      target: ldm.data.landscape.LandscapeValidation
       params:
         config:
           size: 256
@@ -96,3 +96,4 @@ lightning:
 
   trainer:
     benchmark: True
+    num_sanity_val_steps: 0

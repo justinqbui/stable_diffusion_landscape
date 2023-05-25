@@ -109,7 +109,7 @@ def get_parser(**parser_kwargs):
         "-l",
         "--logdir",
         type=str,
-        default="logs",
+        default="/Users/justinqbui/Desktop/research/stable_diffusion_m1/logs",
         help="directory for logging dat shit",
     )
     parser.add_argument(
@@ -201,7 +201,7 @@ class DataModuleFromConfig(pl.LightningDataModule):
         else:
             init_fn = None
         return DataLoader(self.datasets["train"], batch_size=self.batch_size,
-                          num_workers=self.num_workers, shuffle=False if is_iterable_dataset else True,
+                          num_workers=self.num_workers, shuffle=False, # if is_iterable_dataset else True,
                           worker_init_fn=init_fn)
 
     def _val_dataloader(self, shuffle=False):
@@ -396,23 +396,23 @@ class CUDACallback(Callback):
     # see https://github.com/SeanNaren/minGPT/blob/master/mingpt/callback.py
     def on_train_epoch_start(self, trainer, pl_module):
         # Reset the memory use counter
-        torch.cuda.reset_peak_memory_stats(trainer.root_gpu)
-        torch.cuda.synchronize(trainer.root_gpu)
+        # torch.cuda.reset_peak_memory_stats(trainer.root_gpu)
+        # torch.cuda.synchronize(trainer.root_gpu)
         self.start_time = time.time()
 
     def on_train_epoch_end(self, trainer, pl_module, outputs):
-        torch.cuda.synchronize(trainer.root_gpu)
-        max_memory = torch.cuda.max_memory_allocated(trainer.root_gpu) / 2 ** 20
+        # torch.cuda.synchronize(trainer.root_gpu)
+        # max_memory = torch.cuda.max_memory_allocated(trainer.root_gpu) / 2 ** 20
         epoch_time = time.time() - self.start_time
 
-        try:
-            max_memory = trainer.training_type_plugin.reduce(max_memory)
-            epoch_time = trainer.training_type_plugin.reduce(epoch_time)
-
-            rank_zero_info(f"Average Epoch time: {epoch_time:.2f} seconds")
-            rank_zero_info(f"Average Peak memory {max_memory:.2f}MiB")
-        except AttributeError:
-            pass
+        # try:
+        #     max_memory = trainer.training_type_plugin.reduce(max_memory)
+        #     epoch_time = trainer.training_type_plugin.reduce(epoch_time)
+        #
+        #     rank_zero_info(f"Average Epoch time: {epoch_time:.2f} seconds")
+        #     rank_zero_info(f"Average Peak memory {max_memory:.2f}MiB")
+        # except AttributeError:
+        #     pass
 
 
 if __name__ == "__main__":
@@ -696,10 +696,11 @@ if __name__ == "__main__":
         # allow checkpointing via USR1
         def melk(*args, **kwargs):
             # run all checkpoint hooks
-            if trainer.global_rank == 0:
-                print("Summoning checkpoint.")
-                ckpt_path = os.path.join(ckptdir, "last.ckpt")
-                trainer.save_checkpoint(ckpt_path)
+            pass
+            # if trainer.global_rank == 0:
+            #     print("Summoning checkpoint.")
+            #     ckpt_path = os.path.join(ckptdir, "last.ckpt")
+            #     trainer.save_checkpoint(ckpt_path)
 
 
         def divein(*args, **kwargs):
@@ -710,8 +711,8 @@ if __name__ == "__main__":
 
         import signal
 
-        signal.signal(signal.SIGUSR1, melk)
-        signal.signal(signal.SIGUSR2, divein)
+        # signal.signal(signal.SIGUSR1, melk)
+        # signal.signal(signal.SIGUSR2, divein)
 
         # run
         if opt.train:
